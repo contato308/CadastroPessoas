@@ -55,6 +55,7 @@
     <Compile Include="Models\ResultadoCriacaoPessoa.cs" />
     <Compile Include="Models\TipoPessoa.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\PessoaService.cs" />
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
   </ItemGroup>

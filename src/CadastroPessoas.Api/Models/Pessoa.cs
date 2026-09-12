@@ -17,7 +17,6 @@ namespace CadastroPessoas.Api.Models
 
         public string Cpf { get; set; }
 
-        // Premissa pendente: a quantidade exigida de CNPJs para Pessoa Jurídica ainda não foi definida.
         public ICollection<Cnpj> Cnpjs { get; set; }
     }
 }
