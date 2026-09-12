@@ -1,0 +1,11 @@
+# Visual Studio / MSBuild
+.vs/
+**/bin/
+**/obj/
+packages/
+*.user
+*.suo
+
+# Codex working directories
+outputs/
+work/
