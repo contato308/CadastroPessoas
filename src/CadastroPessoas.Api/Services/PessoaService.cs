@@ -6,9 +6,20 @@ namespace CadastroPessoas.Api.Services
 {
     public class PessoaService
     {
+        // Armazenamento temporário em memória; será substituído na fase de persistência.
         private readonly List<Pessoa> _pessoas = new List<Pessoa>();
         private int _proximoPessoaId = 1;
         private int _proximoCnpjId = 1;
+
+        public IReadOnlyCollection<Pessoa> Listar()
+        {
+            return _pessoas.AsReadOnly();
+        }
+
+        public Pessoa BuscarPorId(int id)
+        {
+            return _pessoas.Find(pessoa => pessoa.Id == id);
+        }
 
         public ResultadoCriacaoPessoa Adicionar(CriarPessoaDto dto)
         {
