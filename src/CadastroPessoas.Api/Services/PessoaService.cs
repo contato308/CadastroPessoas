@@ -103,6 +103,20 @@ namespace CadastroPessoas.Api.Services
             }
         }
 
+        public bool Excluir(int id)
+        {
+            lock (_sincronizacao)
+            {
+                var pessoa = BuscarPorIdSemBloqueio(id);
+                if (pessoa == null)
+                {
+                    return false;
+                }
+
+                return _pessoas.Remove(pessoa);
+            }
+        }
+
         private static string ValidarDadosPessoa(
             string nome,
             TipoPessoa tipo,
