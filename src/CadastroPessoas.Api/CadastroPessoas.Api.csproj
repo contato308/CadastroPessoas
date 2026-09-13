@@ -47,12 +47,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Dtos\AtualizarPessoaDto.cs" />
     <Compile Include="Dtos\CriarPessoaDto.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Cnpj.cs" />
     <Compile Include="Models\Pessoa.cs" />
+    <Compile Include="Models\ResultadoAtualizacaoPessoa.cs" />
     <Compile Include="Models\ResultadoCriacaoPessoa.cs" />
     <Compile Include="Models\TipoPessoa.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
