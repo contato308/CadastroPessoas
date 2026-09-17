@@ -7,8 +7,25 @@ namespace CadastroPessoas.Api.Services
     public class PessoaService
     {
         private readonly List<Pessoa> _pessoas = new List<Pessoa>();
+        private readonly object _sincronizacao = new object();
         private int _proximoPessoaId = 1;
         private int _proximoCnpjId = 1;
+
+        public IReadOnlyCollection<Pessoa> Listar()
+        {
+            lock (_sincronizacao)
+            {
+                return _pessoas.ToArray();
+            }
+        }
+
+        public Pessoa BuscarPorId(int id)
+        {
+            lock (_sincronizacao)
+            {
+                return BuscarPorIdSemBloqueio(id);
+            }
+        }
 
         public ResultadoCriacaoPessoa Adicionar(CriarPessoaDto dto)
         {
@@ -17,63 +34,148 @@ namespace CadastroPessoas.Api.Services
                 return CriarErro("Dados inválidos.");
             }
 
-            if (string.IsNullOrWhiteSpace(dto.Nome))
+            var mensagemErro = ValidarDadosPessoa(dto.Nome, dto.Tipo, dto.Cpf, dto.Cnpjs);
+            if (mensagemErro != null)
             {
-                return CriarErro("Nome é obrigatório.");
+                return CriarErro(mensagemErro);
             }
 
-            if (dto.Tipo != TipoPessoa.Fisica && dto.Tipo != TipoPessoa.Juridica)
+            lock (_sincronizacao)
             {
-                return CriarErro("Tipo de pessoa inválido.");
+                var pessoa = new Pessoa
+                {
+                    Id = _proximoPessoaId++,
+                    Nome = dto.Nome,
+                    Tipo = dto.Tipo,
+                    Cpf = dto.Cpf
+                };
+
+                AdicionarCnpjs(pessoa, dto.Cnpjs);
+                _pessoas.Add(pessoa);
+
+                return new ResultadoCriacaoPessoa
+                {
+                    Sucesso = true,
+                    Pessoa = pessoa
+                };
+            }
+        }
+
+        public ResultadoAtualizacaoPessoa Atualizar(int id, AtualizarPessoaDto dto)
+        {
+            if (dto == null)
+            {
+                return CriarErroAtualizacao("Dados inválidos.");
             }
 
-            if (dto.Tipo == TipoPessoa.Fisica && string.IsNullOrWhiteSpace(dto.Cpf))
+            var mensagemErro = ValidarDadosPessoa(dto.Nome, dto.Tipo, dto.Cpf, dto.Cnpjs);
+            if (mensagemErro != null)
             {
-                return CriarErro("CPF é obrigatório para pessoa física.");
+                return CriarErroAtualizacao(mensagemErro);
             }
 
-            if (dto.Cnpjs != null)
+            lock (_sincronizacao)
             {
-                foreach (var numeroCnpj in dto.Cnpjs)
+                var pessoa = BuscarPorIdSemBloqueio(id);
+                if (pessoa == null)
+                {
+                    return new ResultadoAtualizacaoPessoa
+                    {
+                        Sucesso = false,
+                        PessoaNaoEncontrada = true,
+                        Mensagem = "Pessoa não encontrada.",
+                        Pessoa = null
+                    };
+                }
+
+                pessoa.Nome = dto.Nome;
+                pessoa.Tipo = dto.Tipo;
+                pessoa.Cpf = dto.Cpf;
+                pessoa.Cnpjs = new List<Cnpj>();
+                AdicionarCnpjs(pessoa, dto.Cnpjs);
+
+                return new ResultadoAtualizacaoPessoa
+                {
+                    Sucesso = true,
+                    PessoaNaoEncontrada = false,
+                    Pessoa = pessoa
+                };
+            }
+        }
+
+        public bool Excluir(int id)
+        {
+            lock (_sincronizacao)
+            {
+                var pessoa = BuscarPorIdSemBloqueio(id);
+                if (pessoa == null)
+                {
+                    return false;
+                }
+
+                return _pessoas.Remove(pessoa);
+            }
+        }
+
+        private static string ValidarDadosPessoa(
+            string nome,
+            TipoPessoa tipo,
+            string cpf,
+            ICollection<string> cnpjs)
+        {
+            if (string.IsNullOrWhiteSpace(nome))
+            {
+                return "Nome é obrigatório.";
+            }
+
+            if (tipo != TipoPessoa.Fisica && tipo != TipoPessoa.Juridica)
+            {
+                return "Tipo de pessoa inválido.";
+            }
+
+            if (tipo == TipoPessoa.Fisica && string.IsNullOrWhiteSpace(cpf))
+            {
+                return "CPF é obrigatório para pessoa física.";
+            }
+
+            if (cnpjs != null)
+            {
+                foreach (var numeroCnpj in cnpjs)
                 {
                     if (string.IsNullOrWhiteSpace(numeroCnpj))
                     {
-                        return CriarErro("Número do CNPJ é obrigatório.");
+                        return "Número do CNPJ é obrigatório.";
                     }
                 }
             }
 
-            var pessoa = new Pessoa
-            {
-                Id = _proximoPessoaId++,
-                Nome = dto.Nome,
-                Tipo = dto.Tipo,
-                Cpf = dto.Cpf
-            };
+            return null;
+        }
 
-            if (dto.Cnpjs != null)
+        private void AdicionarCnpjs(Pessoa pessoa, ICollection<string> numerosCnpj)
+        {
+            if (numerosCnpj == null)
             {
-                foreach (var numeroCnpj in dto.Cnpjs)
-                {
-                    var cnpj = new Cnpj
-                    {
-                        Id = _proximoCnpjId++,
-                        Numero = numeroCnpj,
-                        PessoaId = pessoa.Id,
-                        Pessoa = pessoa
-                    };
-
-                    pessoa.Cnpjs.Add(cnpj);
-                }
+                return;
             }
 
-            _pessoas.Add(pessoa);
-
-            return new ResultadoCriacaoPessoa
+            foreach (var numeroCnpj in numerosCnpj)
             {
-                Sucesso = true,
-                Pessoa = pessoa
-            };
+                var cnpj = new Cnpj
+                {
+                    Id = _proximoCnpjId++,
+                    Numero = numeroCnpj,
+                    PessoaId = pessoa.Id,
+                    Pessoa = pessoa
+                };
+
+                pessoa.Cnpjs.Add(cnpj);
+            }
+        }
+
+        private Pessoa BuscarPorIdSemBloqueio(int id)
+        {
+            return _pessoas.Find(pessoa => pessoa.Id == id);
         }
 
         private static ResultadoCriacaoPessoa CriarErro(string mensagem)
@@ -81,6 +183,17 @@ namespace CadastroPessoas.Api.Services
             return new ResultadoCriacaoPessoa
             {
                 Sucesso = false,
+                Mensagem = mensagem,
+                Pessoa = null
+            };
+        }
+
+        private static ResultadoAtualizacaoPessoa CriarErroAtualizacao(string mensagem)
+        {
+            return new ResultadoAtualizacaoPessoa
+            {
+                Sucesso = false,
+                PessoaNaoEncontrada = false,
                 Mensagem = mensagem,
                 Pessoa = null
             };
