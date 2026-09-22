@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Web.Mvc;
 
 namespace CadastroPessoas.Mvc.Models
 {
@@ -8,7 +7,6 @@ namespace CadastroPessoas.Mvc.Models
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Nome é obrigatório.")]
-        [AllowHtml]
         public string Nome { get; set; }
 
         [Required(ErrorMessage = "Selecione o tipo de pessoa.")]
