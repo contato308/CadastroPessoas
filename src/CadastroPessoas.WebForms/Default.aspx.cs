@@ -191,7 +191,7 @@ namespace CadastroPessoas.WebForms
         private void MostrarErro(string mensagem)
         {
             MessageLabel.CssClass = "message error";
-            MessageLabel.Text = mensagem;
+            MessageLabel.Text = Server.HtmlEncode(mensagem);
         }
     }
 }
