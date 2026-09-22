@@ -8,11 +8,10 @@ namespace CadastroPessoas.Api.Controllers
 {
     public class PessoasController : ApiController
     {
-        private static readonly PessoaService ServicoCompartilhado = new PessoaService();
         private readonly PessoaService _service;
 
         public PessoasController()
-            : this(ServicoCompartilhado)
+            : this(new PessoaService())
         {
         }
 
@@ -90,6 +89,16 @@ namespace CadastroPessoas.Api.Controllers
             }
 
             return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _service.Dispose();
+            }
+
+            base.Dispose(disposing);
         }
     }
 }
