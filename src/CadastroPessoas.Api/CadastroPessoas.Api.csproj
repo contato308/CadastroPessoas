@@ -42,12 +42,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="EntityFramework" Version="6.5.2" />
     <PackageReference Include="Microsoft.AspNet.WebApi.WebHost" Version="5.2.9" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\PessoasController.cs" />
+    <Compile Include="Data\CadastroPessoasContext.cs" />
     <Compile Include="Dtos\AtualizarPessoaDto.cs" />
     <Compile Include="Dtos\CriarPessoaDto.cs" />
     <Compile Include="Global.asax.cs">
