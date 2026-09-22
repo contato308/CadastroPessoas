@@ -124,6 +124,11 @@ namespace CadastroPessoas.WebForms.Services
                 return new PessoasApiException("Pessoa não encontrada.");
             }
 
+            if ((int)response.StatusCode >= 500)
+            {
+                return new PessoasApiException("A API não conseguiu concluir a operação.");
+            }
+
             var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             var message = ExtrairMensagem(content);
 

@@ -58,7 +58,7 @@
                             </asp:TemplateField>
                             <asp:BoundField DataField="Cpf" HeaderText="CPF" />
                             <asp:TemplateField HeaderText="CNPJs">
-                                <ItemTemplate><%# FormatarCnpjs(Eval("Cnpjs")) %></ItemTemplate>
+                                <ItemTemplate><%#: FormatarCnpjs(Eval("Cnpjs")) %></ItemTemplate>
                             </asp:TemplateField>
                             <asp:TemplateField HeaderText="Ações">
                                 <ItemTemplate>
