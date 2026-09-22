@@ -1,0 +1,65 @@
+@model IList<PessoaApiModel>
+@{
+    ViewBag.Title = "Pessoas";
+}
+
+<div class="page-heading">
+    <div>
+        <h1>Pessoas cadastradas</h1>
+        <p>Consulte e mantenha os dados das pessoas.</p>
+    </div>
+    <a class="button button-primary" href="@Url.Action("Criar")">Cadastrar pessoa</a>
+</div>
+
+@if (TempData["Mensagem"] != null)
+{
+    <p class="message message-success" role="status">@TempData["Mensagem"]</p>
+}
+@if (TempData["Erro"] != null)
+{
+    <p class="message message-error" role="alert">@TempData["Erro"]</p>
+}
+@if (ViewData["ApiError"] != null)
+{
+    <p class="message message-error" role="alert">@ViewData["ApiError"]</p>
+}
+
+@if (Model.Count == 0)
+{
+    <p class="empty-state">Nenhuma pessoa cadastrada.</p>
+}
+else
+{
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Tipo</th>
+                    <th>CPF</th>
+                    <th>CNPJs</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var pessoa in Model)
+                {
+                    <tr>
+                        <td data-label="Nome">@pessoa.Nome</td>
+                        <td data-label="Tipo">@(pessoa.Tipo == 1 ? "Pessoa Física" : pessoa.Tipo == 2 ? "Pessoa Jurídica" : "")</td>
+                        <td data-label="CPF">@pessoa.Cpf</td>
+                        <td data-label="CNPJs">@(pessoa.Cnpjs == null ? "" : string.Join(", ", pessoa.Cnpjs.Select(cnpj => cnpj.Numero)))</td>
+                        <td data-label="Ações" class="actions">
+                            <a href="@Url.Action("Editar", new { id = pessoa.Id })">Editar</a>
+                            @using (Html.BeginForm("Excluir", "Pessoas", new { id = pessoa.Id }, FormMethod.Post, new { @class = "inline-form", onsubmit = "return confirm('Excluir esta pessoa?');" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button class="link-button" type="submit">Excluir</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

@@ -1,0 +1,17 @@
+@model PessoaFormViewModel
+@{
+    ViewBag.Title = "Cadastrar pessoa";
+}
+
+<h1>Cadastrar pessoa</h1>
+<p>Informe os dados da pessoa. Os CNPJs são opcionais e podem ser informados um por linha.</p>
+
+@using (Html.BeginForm("Criar", "Pessoas", FormMethod.Post, new { @class = "person-form" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.Partial("_PessoaFormFields", Model)
+    <div class="form-actions">
+        <button class="button button-primary" type="submit">Salvar</button>
+        <a class="button button-secondary" href="@Url.Action("Index")">Cancelar</a>
+    </div>
+}
