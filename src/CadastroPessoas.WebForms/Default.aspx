@@ -13,8 +13,9 @@
             <h1>Cadastro de Pessoas</h1>
 
             <section class="panel" aria-labelledby="formTitle">
-                <h2 id="formTitle">Nova pessoa</h2>
+                <h2 id="formTitle"><asp:Literal ID="FormTitleLiteral" runat="server" Text="Nova pessoa" /></h2>
                 <asp:Label ID="MessageLabel" runat="server" CssClass="message" EnableViewState="false" />
+                <asp:HiddenField ID="PersonIdHiddenField" runat="server" />
 
                 <div class="form-grid">
                     <div class="field field-wide">
@@ -49,7 +50,7 @@
             <section class="panel" aria-labelledby="peopleTitle">
                 <h2 id="peopleTitle">Pessoas cadastradas</h2>
                 <div class="table-scroll">
-                    <asp:GridView ID="PeopleGridView" runat="server" AutoGenerateColumns="false" CssClass="people-table" GridLines="None" EmptyDataText="Nenhuma pessoa cadastrada.">
+                    <asp:GridView ID="PeopleGridView" runat="server" AutoGenerateColumns="false" CssClass="people-table" GridLines="None" EmptyDataText="Nenhuma pessoa cadastrada." OnRowCommand="PeopleGridView_RowCommand">
                         <Columns>
                             <asp:BoundField DataField="Nome" HeaderText="Nome" />
                             <asp:TemplateField HeaderText="Tipo">
@@ -58,6 +59,12 @@
                             <asp:BoundField DataField="Cpf" HeaderText="CPF" />
                             <asp:TemplateField HeaderText="CNPJs">
                                 <ItemTemplate><%# FormatarCnpjs(Eval("Cnpjs")) %></ItemTemplate>
+                            </asp:TemplateField>
+                            <asp:TemplateField HeaderText="Ações">
+                                <ItemTemplate>
+                                    <asp:LinkButton ID="EditLinkButton" runat="server" Text="Editar" CssClass="row-action" CommandName="Editar" CommandArgument='<%# Eval("Id") %>' CausesValidation="false" />
+                                    <asp:LinkButton ID="DeleteLinkButton" runat="server" Text="Excluir" CssClass="row-action row-action-delete" CommandName="Excluir" CommandArgument='<%# Eval("Id") %>' CausesValidation="false" OnClientClick="return confirm('Excluir esta pessoa?');" />
+                                </ItemTemplate>
                             </asp:TemplateField>
                         </Columns>
                     </asp:GridView>

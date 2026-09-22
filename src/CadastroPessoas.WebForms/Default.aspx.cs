@@ -29,6 +29,24 @@ namespace CadastroPessoas.WebForms
             MessageLabel.Text = string.Empty;
         }
 
+        protected void PeopleGridView_RowCommand(object sender, System.Web.UI.WebControls.GridViewCommandEventArgs e)
+        {
+            int id;
+            if (!int.TryParse(Convert.ToString(e.CommandArgument), out id))
+            {
+                return;
+            }
+
+            if (e.CommandName == "Editar")
+            {
+                RegisterAsyncTask(new PageAsyncTask(() => PrepararEdicaoAsync(id)));
+            }
+            else if (e.CommandName == "Excluir")
+            {
+                RegisterAsyncTask(new PageAsyncTask(() => ExcluirPessoaAsync(id)));
+            }
+        }
+
         protected string FormatarTipo(object value)
         {
             var tipo = Convert.ToInt32(value);
@@ -88,11 +106,21 @@ namespace CadastroPessoas.WebForms
             try
             {
                 var client = new PessoasApiClient();
-                await client.AdicionarAsync(pessoa);
+                int id;
+                var editando = int.TryParse(PersonIdHiddenField.Value, out id);
+
+                if (editando)
+                {
+                    await client.AtualizarAsync(id, pessoa);
+                }
+                else
+                {
+                    await client.AdicionarAsync(pessoa);
+                }
 
                 LimparFormulario();
                 MessageLabel.CssClass = "message success";
-                MessageLabel.Text = "Pessoa cadastrada com sucesso.";
+                MessageLabel.Text = editando ? "Pessoa atualizada com sucesso." : "Pessoa cadastrada com sucesso.";
                 await CarregarPessoasAsync();
             }
             catch (PessoasApiException ex)
@@ -101,12 +129,63 @@ namespace CadastroPessoas.WebForms
             }
         }
 
+        private async Task PrepararEdicaoAsync(int id)
+        {
+            try
+            {
+                var client = new PessoasApiClient();
+                var pessoa = await client.BuscarPorIdAsync(id);
+
+                PersonIdHiddenField.Value = pessoa.Id.ToString();
+                NameTextBox.Text = pessoa.Nome;
+                TypeDropDownList.SelectedValue = pessoa.Tipo.ToString();
+                CpfTextBox.Text = pessoa.Cpf;
+                CnpjsTextBox.Text = string.Join(Environment.NewLine, (pessoa.Cnpjs ?? new List<CnpjApiModel>()).Select(cnpj => cnpj.Numero));
+                FormTitleLiteral.Text = "Editar pessoa";
+                SaveButton.Text = "Salvar alterações";
+                CancelButton.Visible = true;
+                MessageLabel.Text = string.Empty;
+            }
+            catch (PessoasApiException ex)
+            {
+                MostrarErro(ex.Message);
+                await CarregarPessoasAsync();
+            }
+        }
+
+        private async Task ExcluirPessoaAsync(int id)
+        {
+            try
+            {
+                var client = new PessoasApiClient();
+                await client.ExcluirAsync(id);
+
+                if (PersonIdHiddenField.Value == id.ToString())
+                {
+                    LimparFormulario();
+                }
+
+                MessageLabel.CssClass = "message success";
+                MessageLabel.Text = "Pessoa excluída com sucesso.";
+                await CarregarPessoasAsync();
+            }
+            catch (PessoasApiException ex)
+            {
+                MostrarErro(ex.Message);
+                await CarregarPessoasAsync();
+            }
+        }
+
         private void LimparFormulario()
         {
+            PersonIdHiddenField.Value = string.Empty;
             NameTextBox.Text = string.Empty;
             TypeDropDownList.SelectedIndex = 0;
             CpfTextBox.Text = string.Empty;
             CnpjsTextBox.Text = string.Empty;
+            FormTitleLiteral.Text = "Nova pessoa";
+            SaveButton.Text = "Salvar";
+            CancelButton.Visible = false;
         }
 
         private void MostrarErro(string mensagem)

@@ -4,6 +4,10 @@ namespace CadastroPessoas.WebForms
     {
         protected global::System.Web.UI.WebControls.Label MessageLabel;
 
+        protected global::System.Web.UI.WebControls.Literal FormTitleLiteral;
+
+        protected global::System.Web.UI.WebControls.HiddenField PersonIdHiddenField;
+
         protected global::System.Web.UI.WebControls.TextBox NameTextBox;
 
         protected global::System.Web.UI.WebControls.DropDownList TypeDropDownList;

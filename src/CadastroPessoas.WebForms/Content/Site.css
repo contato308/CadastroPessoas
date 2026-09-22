@@ -126,6 +126,16 @@ textarea {
     font-weight: 600;
 }
 
+.row-action {
+    margin-right: 10px;
+    color: #245c7a;
+    text-decoration: none;
+}
+
+.row-action-delete {
+    color: #a12622;
+}
+
 @media (max-width: 640px) {
     .page {
         margin: 20px auto;
