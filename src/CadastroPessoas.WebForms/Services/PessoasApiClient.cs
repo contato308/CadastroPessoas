@@ -12,7 +12,10 @@ namespace CadastroPessoas.WebForms.Services
 {
     public class PessoasApiClient
     {
-        private static readonly HttpClient HttpClient = new HttpClient();
+        private static readonly HttpClient HttpClient = new HttpClient
+        {
+            Timeout = TimeSpan.FromSeconds(5)
+        };
         private readonly string _baseUrl;
 
         public PessoasApiClient()
@@ -89,6 +92,11 @@ namespace CadastroPessoas.WebForms.Services
                 }
 
                 var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                if (string.IsNullOrWhiteSpace(content) ||
+                    string.Equals(content.Trim(), "null", StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new PessoasApiException("A API retornou uma resposta inválida.");
+                }
 
                 try
                 {
