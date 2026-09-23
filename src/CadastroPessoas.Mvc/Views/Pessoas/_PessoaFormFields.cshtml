@@ -1,0 +1,29 @@
+@model PessoaFormViewModel
+
+@Html.ValidationSummary(false, "Revise os dados informados.", new { @class = "validation-summary" })
+
+<div class="form-field">
+    @Html.LabelFor(model => model.Nome, "Nome")
+    @Html.TextBoxFor(model => model.Nome, new { @class = "form-control", autocomplete = "name" })
+    @Html.ValidationMessageFor(model => model.Nome)
+</div>
+<div class="form-field">
+    @Html.LabelFor(model => model.Tipo, "Tipo de pessoa")
+    @Html.DropDownListFor(model => model.Tipo,
+        new[]
+        {
+            new SelectListItem { Text = "Pessoa Física", Value = "1" },
+            new SelectListItem { Text = "Pessoa Jurídica", Value = "2" }
+        },
+        "Selecione...",
+        new { @class = "form-control" })
+    @Html.ValidationMessageFor(model => model.Tipo)
+</div>
+<div class="form-field">
+    @Html.LabelFor(model => model.Cpf, "CPF")
+    @Html.TextBoxFor(model => model.Cpf, new { @class = "form-control", inputmode = "numeric" })
+</div>
+<div class="form-field form-field-wide">
+    @Html.LabelFor(model => model.Cnpjs, "CNPJs (um por linha, opcional)")
+    @Html.TextAreaFor(model => model.Cnpjs, 4, 40, new { @class = "form-control", spellcheck = "false" })
+</div>

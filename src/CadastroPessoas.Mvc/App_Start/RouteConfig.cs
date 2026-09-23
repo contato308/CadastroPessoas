@@ -14,7 +14,7 @@ namespace CadastroPessoas.Mvc
                 url: "{controller}/{action}/{id}",
                 defaults: new
                 {
-                    controller = "Home",
+                    controller = "Pessoas",
                     action = "Index",
                     id = UrlParameter.Optional
                 });

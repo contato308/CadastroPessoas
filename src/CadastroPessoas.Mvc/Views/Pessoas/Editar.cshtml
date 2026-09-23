@@ -1,0 +1,18 @@
+@model PessoaFormViewModel
+@{
+    ViewBag.Title = "Editar pessoa";
+}
+
+<h1>Editar pessoa</h1>
+<p>Atualize os dados da pessoa cadastrada.</p>
+
+@using (Html.BeginForm("Editar", "Pessoas", new { id = Model.Id }, FormMethod.Post, new { @class = "person-form" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.Id)
+    @Html.Partial("_PessoaFormFields", Model)
+    <div class="form-actions">
+        <button class="button button-primary" type="submit">Salvar alterações</button>
+        <a class="button button-secondary" href="@Url.Action("Index")">Cancelar</a>
+    </div>
+}
