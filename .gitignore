@@ -6,6 +6,6 @@ packages/
 *.user
 *.suo
 
-# Codex working directories
+# Diretórios de trabalho
 outputs/
 work/
